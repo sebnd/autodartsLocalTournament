@@ -1,0 +1,39 @@
+{
+  "manifest_version": 3,
+  "name": "Autodarts Local Tournaments",
+  "version": "1.0",
+  "description": "Tool zur Organisation lokaler KO- und Liga-Turniere auf autodarts.io.",
+  "author": "sebnd",
+  "permissions": [
+    "storage"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://play.autodarts.io/*"
+      ],
+      "js": [
+        "src/core/constants.js",
+        "src/core/state.js",
+        "src/utils/utils.js",
+        "src/ui/modals.js",
+        "src/core/logic.js",
+        "src/automation/sync.js",
+        "src/ui/matchbox.js",
+        "src/ui/views/bracket.js",
+        "src/ui/tables.js",
+        "src/ui/views/setup.js",
+        "src/ui/views/league.js",
+        "src/ui/views/groups.js",
+        "src/automation/lobby.js",
+        "src/core/actions.js",
+        "src/ui/renderer.js",
+        "content.js",
+        "src/ui/menu.js"
+      ]
+    }
+  ],
+  "action": {
+    "default_title": "Autodarts Local"
+  }
+}
