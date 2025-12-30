@@ -1,4 +1,28 @@
 (function() {
+    // Sprachsteuerung über localStorage
+    const currentLng = localStorage.getItem('i18nextLng') || 'en';
+    const translations = {
+        'de': {
+            league: 'LIGA',
+            group: 'GRUPPE',
+            pos: 'POS',
+            player: 'SPIELER',
+            wins: 'S',
+            legs: 'LEGS',
+            avg: 'AVG'
+        },
+        'en': {
+            league: 'LEAGUE',
+            group: 'GROUP',
+            pos: 'POS',
+            player: 'PLAYER',
+            wins: 'W',
+            legs: 'LEGS',
+            avg: 'AVG'
+        }
+    };
+    const t = translations[currentLng.startsWith('de') ? 'de' : 'en'] || translations['en'];
+
     // Styles für Tabellen, Gruppen-Karten und Surrender-Buttons
     const style = document.createElement('style');
     style.innerHTML = `
@@ -40,13 +64,14 @@
                     const chunk = sorted.slice(s * chunkSize, (s + 1) * chunkSize);
                     if (chunk.length === 0) continue;
                     
-                    html += `<div class="group-card"><div style="font-weight:bold; color:#3182CE; margin-bottom:10px;">${isLeague ? 'LIGA' : 'GRUPPE ' + g.id}</div><table class="group-table"><thead><tr><th>POS</th><th>SPIELER</th><th>S</th><th>LEGS</th><th>AVG</th></tr></thead><tbody>`;
+                    html += `<div class="group-card"><div style="font-weight:bold; color:#3182CE; margin-bottom:10px;">${isLeague ? t.league : t.group + ' ' + g.id}</div><table class="group-table"><thead><tr><th>${t.pos}</th><th>${t.player}</th><th>${t.wins}</th><th>${t.legs}</th><th>${t.avg}</th></tr></thead><tbody>`;
                     
                     chunk.forEach((p, idx) => {
                         const globalIdx = (s * chunkSize) + idx;
                         const isAdv = !isLeague && advancingPlayers.includes(p.name);
                         const isSurr = surrenderedPlayers.includes(p.name);
-                        html += `<tr class="${isAdv ? 'adv-row' : ''}"><td>${globalIdx+1}</td><td style="${isSurr ? 'opacity:0.4; text-decoration:line-through;' : ''}">${p.name}<button class="global-surrender-btn" data-name="${p.name}">🏳</button></td><td>${p.wins}</td><td>${p.lf}:${p.la}</td><td>${(p.totalAvg || 0).toFixed(2)}</td></tr>`; 
+                        // Hier wurde die Bedingung hinzugefügt, dass der Button nur erscheint, wenn der Spieler nicht aufgegeben hat
+                        html += `<tr class="${isAdv ? 'adv-row' : ''}"><td>${globalIdx+1}</td><td style="${isSurr ? 'opacity:0.4; text-decoration:line-through;' : ''}">${p.name}${!isSurr ? `<button class="global-surrender-btn" data-name="${p.name}">🏳</button>` : ''}</td><td>${p.wins}</td><td>${p.lf}:${p.la}</td><td>${(p.totalAvg || 0).toFixed(2)}</td></tr>`; 
                     });
                     
                     html += `</tbody></table></div>`;

@@ -1,4 +1,12 @@
 (function() {
+    // Sprachsteuerung über localStorage
+    const currentLng = localStorage.getItem('i18nextLng') || 'en';
+    const translations = {
+        'de': { cancel: 'Abbrechen' },
+        'en': { cancel: 'Cancel' }
+    };
+    const t = translations[currentLng.startsWith('de') ? 'de' : 'en'] || translations['en'];
+
     const style = document.createElement('style');
     style.innerHTML = `
         #ad-local-tournaments-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 9999; display: flex; justify-content: center; align-items: center; color: white; font-family: 'Inter', sans-serif; }
@@ -20,7 +28,7 @@
                     <div style="font-size:24px; font-weight:800; color:white; margin-bottom:12px; text-transform:uppercase;">${title}</div>
                     <div style="color:#A0AEC0; margin-bottom:30px;">${text}</div>
                     <div style="display:flex; justify-content:center; gap:10px;">
-                        <button class="ad-btn-styled" style="background:#4A5568; padding:10px 20px; border:none; color:white; border-radius:8px; cursor:pointer;">Abbrechen</button>
+                        <button class="ad-btn-styled" style="background:#4A5568; padding:10px 20px; border:none; color:white; border-radius:8px; cursor:pointer;">${t.cancel}</button>
                         <button class="ad-btn-styled" style="background:${isSuccess ? '#38A169' : '#E53E3E'}; padding:10px 20px; border:none; color:white; border-radius:8px; cursor:pointer;">${confirmText}</button>
                     </div>
                 </div>`;

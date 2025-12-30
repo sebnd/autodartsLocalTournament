@@ -1,7 +1,7 @@
 (function() {
-    const { STORAGE_KEY } = window.adTourney.constants; //
+    const { STORAGE_KEY } = window.adTourney.constants;
 
-    // 1. Initialer State mit Standardwerten (Synchron für sofortige Verfügbarkeit)
+    // 1. Initialer State mit Standardwerten
     window.adTourney.state = {
         step: 'SETUP',
         mode: 'KO',
@@ -26,22 +26,41 @@
             bullOffMode: "Normal",
             targetLegs: 2
         }
-    }; //
+    };
 
-    // 2. Daten asynchron aus dem offiziellen Chrome-Speicher laden
-    chrome.storage.local.get([STORAGE_KEY], (result) => {
-        const saved = result[STORAGE_KEY];
+    const applySavedData = (saved) => {
         if (saved) {
-            // Bestehenden State mit den geladenen Daten mergen
             Object.assign(window.adTourney.state, saved);
-            
-            // UI-Refresh triggern, sobald die Daten aus dem Speicher geladen wurden
             if (window.adTourney.renderUI) window.adTourney.renderUI();
         }
-    });
+    };
 
-    // 3. Neue Speicher-Funktion via chrome.storage.local
+    // 2. Daten sicher laden (Chrome Storage oder LocalStorage Fallback)
+    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+        chrome.storage.local.get([STORAGE_KEY], (result) => {
+            applySavedData(result[STORAGE_KEY]);
+        });
+    } else {
+        const localSaved = localStorage.getItem(STORAGE_KEY);
+        if (localSaved) {
+            try {
+                applySavedData(JSON.parse(localSaved));
+            } catch (e) {
+                console.error("Fehler beim Laden aus localStorage:", e);
+            }
+        }
+    }
+
+    // 3. Neue Speicher-Funktion mit Sicherheitsprüfung
     window.adTourney.save = function() {
-        chrome.storage.local.set({ [STORAGE_KEY]: window.adTourney.state });
-    }; //
+        const stateToSave = window.adTourney.state;
+
+        // Versuch, im Chrome-Speicher zu sichern (Extension-Kontext)
+        if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+            chrome.storage.local.set({ [STORAGE_KEY]: stateToSave });
+        }
+        
+        // Immer auch im localStorage sichern (Fallback / Userscript-Kontext)
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
+    };
 })();

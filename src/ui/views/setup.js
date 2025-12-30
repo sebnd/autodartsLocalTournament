@@ -1,4 +1,54 @@
 (function() {
+    // Sprachsteuerung über localStorage
+    const currentLng = localStorage.getItem('i18nextLng') || 'en';
+    const translations = {
+        'de': {
+            ko: 'KO',
+            groupsKo: 'GRUPPEN + KO',
+            league: 'LIGA',
+            baseScore: 'Base score',
+            inMode: 'In mode',
+            outMode: 'Out mode',
+            maxRounds: 'Max Runden',
+            bullMode: 'Bull mode',
+            bullOff: 'Bull-off',
+            gameModeLabel: 'Spielmodus: Legs (First to...)',
+            firstTo: 'First to',
+            leg: 'Leg',
+            legs: 'Legs',
+            groupSize: 'GRUPPENGRÖSSE',
+            qualifiers: 'QUALIFIKANTEN',
+            namePlaceholder: 'NAME...',
+            startBtn: 'Starten',
+            resetTitle: 'Setup & Namen zurücksetzen',
+            errorTitle: 'DOPPELTER NAME',
+            errorText: 'Dieser Name ist bereits im Turnier!'
+        },
+        'en': {
+            ko: 'KO',
+            groupsKo: 'GROUPS + KO',
+            league: 'LEAGUE',
+            baseScore: 'Base score',
+            inMode: 'In mode',
+            outMode: 'Out mode',
+            maxRounds: 'Max Rounds',
+            bullMode: 'Bull mode',
+            bullOff: 'Bull-off',
+            gameModeLabel: 'Game mode: Legs (First to...)',
+            firstTo: 'First to',
+            leg: 'Leg',
+            legs: 'Legs',
+            groupSize: 'GROUP SIZE',
+            qualifiers: 'QUALIFIERS',
+            namePlaceholder: 'NAME...',
+            startBtn: 'Start',
+            resetTitle: 'Reset setup & names',
+            errorTitle: 'DUPLICATE NAME',
+            errorText: 'This name is already in the tournament!'
+        }
+    };
+    const t = translations[currentLng.startsWith('de') ? 'de' : 'en'] || translations['en'];
+
     const style = document.createElement('style');
     style.innerHTML = `
         .ad-setup-container { background: #1A202C; border: 1px solid #2D3748; border-radius: 12px; padding: 25px; max-width: 950px; }
@@ -39,20 +89,20 @@
             const s = state.settings;
 
             const matchSettingsGroups = [
-                { label: 'Base score', key: 'baseScore', opts: [121, 170, 301, 501, 701, 901] },
-                { label: 'In mode', key: 'inMode', opts: ['Straight', 'Double', 'Master'] },
-                { label: 'Out mode', key: 'outMode', opts: ['Straight', 'Double', 'Master'] },
-                { label: 'Max Runden', key: 'maxRounds', opts: [15, 20, 50, 80] },
-                { label: 'Bull mode', key: 'bullMode', opts: ['25/50', '50/50'] },
-                { label: 'Bull-off', key: 'bullOffMode', opts: ['Off', 'Normal', 'Official'] }
+                { label: t.baseScore, key: 'baseScore', opts: [121, 170, 301, 501, 701, 901] },
+                { label: t.inMode, key: 'inMode', opts: ['Straight', 'Double', 'Master'] },
+                { label: t.outMode, key: 'outMode', opts: ['Straight', 'Double', 'Master'] },
+                { label: t.maxRounds, key: 'maxRounds', opts: [15, 20, 50, 80] },
+                { label: t.bullMode, key: 'bullMode', opts: ['25/50', '50/50'] },
+                { label: t.bullOff, key: 'bullOffMode', opts: ['Off', 'Normal', 'Official'] }
             ];
 
             return `
             <div class="ad-setup-container">
                 <div class="mode-toggle">
-                    <button class="mode-btn ad-btn-styled ${state.mode === 'KO' ? 'active' : ''}" data-mode="KO">KO</button>
-                    <button class="mode-btn ad-btn-styled ${state.mode === 'GROUPS' ? 'active' : ''}" data-mode="GROUPS">GRUPPEN + KO</button>
-                    <button class="mode-btn ad-btn-styled ${state.mode === 'LEAGUE' ? 'active' : ''}" data-mode="LEAGUE">LIGA</button>
+                    <button class="mode-btn ad-btn-styled ${state.mode === 'KO' ? 'active' : ''}" data-mode="KO">${t.ko}</button>
+                    <button class="mode-btn ad-btn-styled ${state.mode === 'GROUPS' ? 'active' : ''}" data-mode="GROUPS">${t.groupsKo}</button>
+                    <button class="mode-btn ad-btn-styled ${state.mode === 'LEAGUE' ? 'active' : ''}" data-mode="LEAGUE">${t.league}</button>
                 </div>
 
                 <div class="setup-main-layout">
@@ -67,22 +117,22 @@
                         `).join('')}
                         
                         <div class="setup-setting-group">
-                            <label class="setup-setting-label">Spielmodus: Legs (First to...)</label>
+                            <label class="setup-setting-label">${t.gameModeLabel}</label>
                             <select class="setup-select-field" id="target-legs-select-setup">
-                                ${[1,2,3,4,5,6,7,8,9,10,11,12].map(n => `<option value="${n}" ${s.targetLegs == n ? 'selected' : ''}>First to ${n} Leg${n>1?'s':''}</option>`).join('')}
+                                ${[1,2,3,4,5,6,7,8,9,10,11,12].map(n => `<option value="${n}" ${s.targetLegs == n ? 'selected' : ''}>${t.firstTo} ${n} ${n > 1 ? t.legs : t.leg}</option>`).join('')}
                             </select>
                         </div>
 
                         ${state.mode === 'GROUPS' ? `
                         <div style="width:100%; height:1px; background:rgba(255,255,255,0.1); margin:10px 0;"></div>
                         <div class="setup-config-item">
-                            <label class="setup-setting-label">GRUPPENGRÖSSE</label>
+                            <label class="setup-setting-label">${t.groupSize}</label>
                             <select id="group-size-select" class="setup-select-field">
                                 ${sizeOptions.map(v => `<option value="${v}" ${state.groupSettings.size == v ? 'selected' : ''}>${v}</option>`).join('')}
                             </select>
                         </div>
                         <div class="setup-config-item">
-                            <label class="setup-setting-label">QUALIFIKANTEN</label>
+                            <label class="setup-setting-label">${t.qualifiers}</label>
                             <select id="group-advance-select" class="setup-select-field">
                                 ${advanceOptions.map(v => `<option value="${v}" ${state.groupSettings.totalAdvance == v ? 'selected' : ''}>${v}</option>`).join('')}
                             </select>
@@ -91,7 +141,7 @@
 
                     <div class="player-setup-section">
                         <div class="input-row">
-                            <input id="p-in" class="setup-input" placeholder="NAME...">
+                            <input id="p-in" class="setup-input" placeholder="${t.namePlaceholder}">
                             <button id="p-add" style="background:#3182CE; color:white; padding:0 20px; border-radius:6px; font-size:20px; border:none; cursor:pointer;">+</button>
                         </div>
                         <table class="player-list-table"><tbody>
@@ -105,8 +155,8 @@
                 </div>
 
                 <div class="setup-footer-row">
-                    <button id="launch-btn" style="background:#2F855A; color:white; border-radius:8px; font-weight:bold; text-transform:uppercase; border:none; cursor:pointer;">Starten</button>
-                    <button id="full-reset-btn" title="Setup & Namen zurücksetzen">↺</button>
+                    <button id="launch-btn" style="background:#2F855A; color:white; border-radius:8px; font-weight:bold; text-transform:uppercase; border:none; cursor:pointer;">${t.startBtn}</button>
+                    <button id="full-reset-btn" title="${t.resetTitle}">↺</button>
                 </div>
             </div>`;
         },
@@ -122,7 +172,7 @@
                 if (inp && inp.value.trim()) {
                     const v = inp.value.trim().toUpperCase();
                     if (state.players.includes(v)) {
-                        callbacks.showModal({ title: 'DOPPELTER NAME', text: 'Dieser Name ist bereits im Turnier!', confirmText: 'OK' });
+                        callbacks.showModal({ title: t.errorTitle, text: t.errorText, confirmText: 'OK' });
                     } else {
                         state.players.push(v);
                         inp.value = "";

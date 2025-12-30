@@ -1,6 +1,22 @@
 (function() {
     window.adTourney = window.adTourney || {}; //
 
+    // Sprachsteuerung über localStorage
+    const currentLng = localStorage.getItem('i18nextLng') || 'en';
+    const translations = {
+        'de': {
+            title: 'BOARD-ID FEHLT',
+            text: 'Dein Board wurde noch nicht erkannt. Bitte öffne einmal manuell eine Lobby und wähle dein Board aus, damit die ID gespeichert werden kann.',
+            confirm: 'Verstanden'
+        },
+        'en': {
+            title: 'BOARD-ID MISSING',
+            text: 'Your board has not been detected yet. Please open a lobby manually once and select your board so that the ID can be saved.',
+            confirm: 'Got it'
+        }
+    };
+    const t = translations[currentLng.startsWith('de') ? 'de' : 'en'] || translations['en'];
+
     window.adTourney.startMatchDirectly = async function(p1Name, p2Name, matchObj) {
         const { state, save } = window.adTourney; //
         const s = state.settings; //
@@ -55,9 +71,9 @@
             // Fehlermeldung, falls kein Board gefunden wurde
             if (!boardId || boardId === "") {
                 window.adModals.show({ 
-                    title: 'BOARD-ID FEHLT', 
-                    text: 'Dein Board wurde noch nicht erkannt. Bitte öffne einmal manuell eine Lobby und wähle dein Board aus, damit die ID gespeichert werden kann.', 
-                    confirmText: 'Verstanden' 
+                    title: t.title, 
+                    text: t.text, 
+                    confirmText: t.confirm 
                 }); //
                 return;
             }

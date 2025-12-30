@@ -15,7 +15,6 @@
       "js": [
         "src/core/constants.js",
         "src/core/state.js",
-        "src/utils/utils.js",
         "src/ui/modals.js",
         "src/core/logic.js",
         "src/automation/sync.js",

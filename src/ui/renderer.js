@@ -1,6 +1,66 @@
 (function() {
     const { PAGE_ID } = window.adTourney.constants;
 
+    // Sprachsteuerung über localStorage
+    const currentLng = localStorage.getItem('i18nextLng') || 'en';
+    const translations = {
+        'de': {
+            tournamentTitle: 'Lokales Turnier',
+            resetBtn: 'Zurücksetzen',
+            tabGroups: 'GRUPPENPHASE',
+            tabLeague: 'LIGA',
+            tabKo: 'KO-PHASE',
+            settingsTitle: 'EINSTELLUNGEN ANPASSEN',
+            saveBtn: 'SPEICHERN & SCHLIESSEN',
+            gameModeLabel: 'Spielmodus: Legs (First to...)',
+            firstTo: 'First to',
+            leg: 'Leg',
+            legs: 'Legs',
+            baseScore: 'Base score',
+            inMode: 'In mode',
+            outMode: 'Out mode',
+            maxRounds: 'Max Runden',
+            bullMode: 'Bull mode',
+            bullOff: 'Bull-off',
+            surrenderTitle: 'AUFGABE',
+            surrenderText: 'gibt auf?',
+            confirm: 'Bestätigen',
+            resetMatchTitle: 'MATCH ZURÜCKSETZEN?',
+            resetMatchBetween: 'Möchtest du das Match zwischen', // Neu hinzugefügt
+            resetMatchAnd: 'und', // Neu hinzugefügt
+            resetMatchText: 'wirklich zurücksetzen? Die Verknüpfung wird gelöscht.',
+            yesReset: 'Ja, zurücksetzen'
+        },
+        'en': {
+            tournamentTitle: 'Local Tournament',
+            resetBtn: 'Reset',
+            tabGroups: 'GROUP STAGE',
+            tabLeague: 'LEAGUE',
+            tabKo: 'KO PHASE',
+            settingsTitle: 'ADJUST SETTINGS',
+            saveBtn: 'SAVE & CLOSE',
+            gameModeLabel: 'Game mode: Legs (First to...)',
+            firstTo: 'First to',
+            leg: 'Leg',
+            legs: 'Legs',
+            baseScore: 'Base score',
+            inMode: 'In mode',
+            outMode: 'Out mode',
+            maxRounds: 'Max Rounds',
+            bullMode: 'Bull mode',
+            bullOff: 'Bull-off',
+            surrenderTitle: 'SURRENDER',
+            surrenderText: 'surrenders?',
+            confirm: 'Confirm',
+            resetMatchTitle: 'RESET MATCH?',
+            resetMatchBetween: 'Do you want to reset the match between', // Neu hinzugefügt
+            resetMatchAnd: 'and', // Neu hinzugefügt
+            resetMatchText: 'really reset? The link will be deleted.',
+            yesReset: 'Yes, reset'
+        }
+    };
+    const t = translations[currentLng.startsWith('de') ? 'de' : 'en'] || translations['en'];
+
     const style = document.createElement('style');
     style.innerHTML = `
         #autodarts-tools-config { flex: 1 !important; height: 100vh !important; overflow-y: auto !important; padding: 20px !important; margin: 0 !important; position: relative; z-index: 10; }
@@ -34,12 +94,12 @@
 
     function renderSettingsHTML(settings) {
         const groups = [
-            { label: 'Base score', key: 'baseScore', opts: [121, 170, 301, 501, 701, 901] },
-            { label: 'In mode', key: 'inMode', opts: ['Straight', 'Double', 'Master'] },
-            { label: 'Out mode', key: 'outMode', opts: ['Straight', 'Double', 'Master'] },
-            { label: 'Max Runden', key: 'maxRounds', opts: [15, 20, 50, 80] },
-            { label: 'Bull mode', key: 'bullMode', opts: ['25/50', '50/50'] },
-            { label: 'Bull-off', key: 'bullOffMode', opts: ['Off', 'Normal', 'Official'] }
+            { label: t.baseScore, key: 'baseScore', opts: [121, 170, 301, 501, 701, 901] },
+            { label: t.inMode, key: 'inMode', opts: ['Straight', 'Double', 'Master'] },
+            { label: t.outMode, key: 'outMode', opts: ['Straight', 'Double', 'Master'] },
+            { label: t.maxRounds, key: 'maxRounds', opts: [15, 20, 50, 80] },
+            { label: t.bullMode, key: 'bullMode', opts: ['25/50', '50/50'] },
+            { label: t.bullOff, key: 'bullOffMode', opts: ['Off', 'Normal', 'Official'] }
         ];
         return `
             <div class="settings-content">
@@ -52,9 +112,9 @@
                     </div>
                 `).join('')}
                 <div class="setting-item">
-                    <label class="setting-label">Spielmodus: Legs (First to...)</label>
+                    <label class="setting-label">${t.gameModeLabel}</label>
                     <select class="setting-select" id="target-legs-select">
-                        ${[1,2,3,4,5,6,7,8,9,10,11,12].map(n => `<option value="${n}" ${settings.targetLegs == n ? 'selected' : ''}>First to ${n} Leg${n>1?'s':''}</option>`).join('')}
+                        ${[1,2,3,4,5,6,7,8,9,10,11,12].map(n => `<option value="${n}" ${settings.targetLegs == n ? 'selected' : ''}>${t.firstTo} ${n} ${n > 1 ? t.legs : t.leg}</option>`).join('')}
                     </select>
                 </div>
             </div>
@@ -67,15 +127,15 @@
 
         if (syncMatchResults) syncMatchResults();
         
-        let headerHtml = `<div class="tournament-header"><h1 class="tournament-title">Lokales Turnier</h1><div class="header-actions">
+        let headerHtml = `<div class="tournament-header"><h1 class="tournament-title">${t.tournamentTitle}</h1><div class="header-actions">
             ${(state.step !== 'SETUP') ? `
                 <button class="gear-btn" id="gear-toggle">⚙️</button>
                 <div class="view-tabs">
-                    ${state.mode === 'GROUPS' ? `<button class="tab-btn ${state.view === 'GROUPS' ? 'active' : ''}" data-view="GROUPS">GRUPPENPHASE</button>` : ''}
-                    ${state.mode === 'LEAGUE' ? `<button class="tab-btn ${state.view === 'LEAGUE' ? 'active' : ''}" data-view="LEAGUE">LIGA</button>` : ''}
-                    ${state.mode !== 'LEAGUE' && (state.step === 'ACTIVE' || state.view === 'KO') ? `<button class="tab-btn ${state.view === 'KO' ? 'active' : ''}" data-view="KO">KO-PHASE</button>` : ''}
+                    ${state.mode === 'GROUPS' ? `<button class="tab-btn ${state.view === 'GROUPS' ? 'active' : ''}" data-view="GROUPS">${t.tabGroups}</button>` : ''}
+                    ${state.mode === 'LEAGUE' ? `<button class="tab-btn ${state.view === 'LEAGUE' ? 'active' : ''}" data-view="LEAGUE">${t.tabLeague}</button>` : ''}
+                    ${state.mode !== 'LEAGUE' && (state.step === 'ACTIVE' || state.view === 'KO') ? `<button class="tab-btn ${state.view === 'KO' ? 'active' : ''}" data-view="KO">${t.tabKo}</button>` : ''}
                 </div>
-                <button id="reset-t" class="ad-btn-styled btn-reset">Zurücksetzen</button>
+                <button id="reset-t" class="ad-btn-styled btn-reset">${t.resetBtn}</button>
             ` : ''}
         </div></div>`;
 
@@ -91,9 +151,9 @@
 
         if (state.showSettings) {
             bodyHtml += `<div class="settings-overlay"><div class="settings-modal">
-                <div class="modal-header"><h3>EINSTELLUNGEN ANPASSEN</h3><button class="close-modal">✕</button></div>
+                <div class="modal-header"><h3>${t.settingsTitle}</h3><button class="close-modal">✕</button></div>
                 ${renderSettingsHTML(state.settings)}
-                <button class="ad-btn-styled" style="width:100%; background:#38A169; color:white; padding:12px; margin-top:15px;" id="close-settings">SPEICHERN & SCHLIESSEN</button>
+                <button class="ad-btn-styled" style="width:100%; background:#38A169; color:white; padding:12px; margin-top:15px;" id="close-settings">${t.saveBtn}</button>
             </div></div>`;
         }
 
@@ -131,7 +191,7 @@
             const mIdx = parseInt(btn.dataset.m);
             const type = btn.closest('.match-box').querySelector('.play-match').dataset.type;
             const m = type === 'league' ? state.leagueMatches[mIdx] : (type === 'group' ? state.groupMatches[mIdx] : state.matches[mIdx]);
-            window.adModals.show({ title: 'AUFGABE', text: `${btn.dataset.p === "1" ? m.p1 : m.p2} gibt auf?`, confirmText: 'Bestätigen', onConfirm: () => {
+            window.adModals.show({ title: t.surrenderTitle, text: `${btn.dataset.p === "1" ? m.p1 : m.p2} ${t.surrenderText}`, confirmText: t.confirm, onConfirm: () => {
                 m.winner = (btn.dataset.p === "1") ? m.p2 : m.p1; m.finished = true;
                 m.results = { p1L: '0', p1A: '-', p2L: '0', p2A: '-' };
                 if (type === 'group' || type === 'league') updateTable(m, state.groups); else { advanceWinner(mIdx); checkFinalVictory(mIdx); }
@@ -144,9 +204,9 @@
             const idx = btn.dataset.idx; const type = btn.dataset.type;
             const m = type === 'league' ? state.leagueMatches[idx] : (type === 'ko' ? state.matches[idx] : state.groupMatches[idx]);
             window.adModals.show({
-                title: 'MATCH ZURÜCKSETZEN?',
-                text: `Möchtest du das Match zwischen ${m.p1} und ${m.p2} wirklich zurücksetzen? Die Verknüpfung wird gelöscht.`,
-                confirmText: 'Ja, zurücksetzen',
+                title: t.resetMatchTitle,
+                text: `${t.resetMatchBetween} ${m.p1} ${t.resetMatchAnd} ${m.p2} ${t.resetMatchText}`, // Dynamische Übersetzung angewendet
+                confirmText: t.yesReset,
                 onConfirm: () => {
                     m.uuid = null; save(); renderUI();
                 }

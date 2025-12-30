@@ -1,37 +1,64 @@
 (function() {
-    window.adTourney = window.adTourney || {}; //
+    window.adTourney = window.adTourney || {};
+
+    // Sprachsteuerung über localStorage
+    const currentLng = localStorage.getItem('i18nextLng') || 'en';
+    const translations = {
+        'de': {
+            resetTitle: 'TURNIER LÖSCHEN?',
+            resetText: 'Möchtest du das aktuelle Turnier beenden? Spieler und Einstellungen bleiben gespeichert.',
+            resetConfirm: 'Turnier beenden',
+            fullResetTitle: 'ALLES ZURÜCKSETZEN?',
+            fullResetText: 'Dies löscht alle eingetragenen Namen und setzt alle Match-Optionen auf Standardwerte.',
+            fullResetConfirm: 'Alles löschen',
+            globalSurrenderTitle: 'KOMPLETTE AUFGABE',
+            globalSurrenderText: 'gibt das gesamte Turnier auf?',
+            globalSurrenderConfirm: 'Ja, aufgeben'
+        },
+        'en': {
+            resetTitle: 'DELETE TOURNAMENT?',
+            resetText: 'Do you want to end the current tournament? Players and settings remain saved.',
+            resetConfirm: 'End tournament',
+            fullResetTitle: 'RESET EVERYTHING?',
+            fullResetText: 'This will delete all entered names and reset all match options to default values.',
+            fullResetConfirm: 'Delete all',
+            globalSurrenderTitle: 'COMPLETE SURRENDER',
+            globalSurrenderText: 'surrenders the entire tournament?',
+            globalSurrenderConfirm: 'Yes, surrender'
+        }
+    };
+    const t = translations[currentLng.startsWith('de') ? 'de' : 'en'] || translations['en'];
 
     window.adTourney.actions = {
         updateGlobalSetting: function(key, value) {
             window.adTourney.state.settings[key] = value;
             window.adTourney.save();
             window.adTourney.renderUI();
-        }, //
+        },
 
         toggleSettingsPopup: function() {
             window.adTourney.state.showSettings = !window.adTourney.state.showSettings;
             window.adTourney.save();
             window.adTourney.renderUI();
-        }, //
+        },
 
         resetTournament: function() {
-            const { state, save, renderUI } = window.adTourney; //
+            const { state, save, renderUI } = window.adTourney;
             window.adModals.show({ 
-                title: 'TURNIER LÖSCHEN?', text: 'Möchtest du das aktuelle Turnier beenden? Spieler und Einstellungen bleiben gespeichert.', confirmText: 'Turnier beenden', onConfirm: () => {
+                title: t.resetTitle, text: t.resetText, confirmText: t.resetConfirm, onConfirm: () => {
                     state.step = 'SETUP'; state.view = 'KO'; state.activePlayer1Name = null;
                     state.surrenderedPlayers = []; state.matches = [];
                     state.groupMatches = []; state.leagueMatches = []; state.groups = []; state.rounds = []; state.reachable = [];
                     state.showSettings = false;
                     save(); renderUI();
                 }
-            }); //
+            });
         },
 
-        // Neue Funktion zum kompletten Zurücksetzen von Namen und Settings
         fullReset: function() {
             const { state, save, renderUI } = window.adTourney;
             window.adModals.show({ 
-                title: 'ALLES ZURÜCKSETZEN?', text: 'Dies löscht alle eingetragenen Namen und setzt alle Match-Optionen auf Standardwerte.', confirmText: 'Alles löschen', onConfirm: () => {
+                title: t.fullResetTitle, text: t.fullResetText, confirmText: t.fullResetConfirm, onConfirm: () => {
                     const defaults = {
                         step: 'SETUP', mode: 'KO', view: 'KO', activePlayer1Name: null,
                         groupSettings: { size: 4, totalAdvance: 8 },
@@ -47,9 +74,9 @@
         },
 
         surrenderGlobally: function(playerName) {
-            const { state, save, renderUI, updateTable, advanceWinner, checkFinalVictory, checkLeagueVictory } = window.adTourney; //
+            const { state, save, renderUI, updateTable, advanceWinner, checkFinalVictory, checkLeagueVictory } = window.adTourney;
             window.adModals.show({ 
-                title: 'KOMPLETTE AUFGABE', text: `${playerName} gibt das gesamte Turnier auf?`, confirmText: 'Ja, aufgeben', onConfirm: () => {
+                title: t.globalSurrenderTitle, text: `${playerName} ${t.globalSurrenderText}`, confirmText: t.globalSurrenderConfirm, onConfirm: () => {
                     if (!state.surrenderedPlayers.includes(playerName)) state.surrenderedPlayers.push(playerName);
                     [state.groupMatches, state.matches, state.leagueMatches].forEach(list => {
                         list.forEach((m, idx) => {
@@ -64,11 +91,11 @@
                     if (state.mode === 'LEAGUE') checkLeagueVictory();
                     save(); renderUI();
                 }
-            }); //
+            });
         },
 
         startTournament: function() {
-            const { state, save, renderUI, createKOBracket } = window.adTourney; //
+            const { state, save, renderUI, createKOBracket } = window.adTourney;
             if (state.players.length < 2) return;
             const shuffled = [...state.players].sort(() => Math.random() - 0.5);
             
@@ -96,6 +123,6 @@
                 createKOBracket(shuffled); state.step = 'ACTIVE'; state.view = 'KO'; 
             }
             save(); renderUI();
-        } //
-    }; //
-})(); //
+        }
+    };
+})();

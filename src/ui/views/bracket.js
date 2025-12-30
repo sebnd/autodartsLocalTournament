@@ -1,4 +1,12 @@
 (function() {
+    // Sprachsteuerung über localStorage
+    const currentLng = localStorage.getItem('i18nextLng') || 'en';
+    const translations = {
+        'de': { round: 'Runde' },
+        'en': { round: 'Round' }
+    };
+    const t = translations[currentLng.startsWith('de') ? 'de' : 'en'] || translations['en'];
+
     // Styles für den Turnierbaum und die Linien
     const style = document.createElement('style');
     style.innerHTML = `
@@ -44,7 +52,7 @@
                         </div>`;
                     }
                 }
-                html += `<div class="round-col"><div class="round-title-row">Runde ${r.round + 1}</div>${matchesHtml}</div>`;
+                html += `<div class="round-col"><div class="round-title-row">${t.round} ${r.round + 1}</div>${matchesHtml}</div>`;
             });
 
             html += `</div>`;

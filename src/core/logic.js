@@ -1,6 +1,26 @@
 (function() {
     window.adTourney = window.adTourney || {};
 
+    // Sprachsteuerung über localStorage
+    const currentLng = localStorage.getItem('i18nextLng') || 'en';
+    const translations = {
+        'de': {
+            winnerTitle: '🏆 SIEGER!',
+            winnerText: 'hat gewonnen!',
+            leagueWinnerTitle: '🏆 LIGASIEGER!',
+            leagueWinnerText: 'hat die Liga gewonnen!',
+            superBtn: 'Super!'
+        },
+        'en': {
+            winnerTitle: '🏆 WINNER!',
+            winnerText: 'has won!',
+            leagueWinnerTitle: '🏆 LEAGUE WINNER!',
+            leagueWinnerText: 'has won the league!',
+            superBtn: 'Great!'
+        }
+    };
+    const t = translations[currentLng.startsWith('de') ? 'de' : 'en'] || translations['en'];
+
     /**
      * Aktualisiert die Tabellen-Statistiken basierend auf einem Match-Ergebnis
      */
@@ -37,7 +57,7 @@
         if (matchIdx === state.matches.length - 1) {
             const finalMatch = state.matches[matchIdx];
             if (finalMatch.finished && finalMatch.winner) {
-                setTimeout(() => { window.adModals.show({ title: '🏆 SIEGER!', text: `${finalMatch.winner} hat gewonnen!`, confirmText: 'Super!', isSuccess: true }); }, 500);
+                setTimeout(() => { window.adModals.show({ title: t.winnerTitle, text: `${finalMatch.winner} ${t.winnerText}`, confirmText: t.superBtn, isSuccess: true }); }, 500);
             }
         }
     };
@@ -49,7 +69,7 @@
         const { state } = window.adTourney;
         if (state.leagueMatches.length > 0 && state.leagueMatches.every(m => m.finished)) {
             const sorted = [...state.groups[0].players].sort((a,b) => b.wins - a.wins || b.diff - a.diff || (b.totalAvg || 0) - (a.totalAvg || 0));
-            setTimeout(() => { window.adModals.show({ title: '🏆 LIGASIEGER!', text: `${sorted[0].name} hat die Liga gewonnen!`, confirmText: 'Super!', isSuccess: true }); }, 500);
+            setTimeout(() => { window.adModals.show({ title: t.leagueWinnerTitle, text: `${sorted[0].name} ${t.leagueWinnerText}`, confirmText: t.superBtn, isSuccess: true }); }, 500);
         }
     };
 

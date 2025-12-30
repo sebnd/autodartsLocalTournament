@@ -1,4 +1,12 @@
 (function() {
+    // Sprachsteuerung über localStorage
+    const currentLng = localStorage.getItem('i18nextLng') || 'en';
+    const translations = {
+        'de': { schedule: 'SPIELPLAN LIGA' },
+        'en': { schedule: 'LEAGUE SCHEDULE' }
+    };
+    const t = translations[currentLng.startsWith('de') ? 'de' : 'en'] || translations['en'];
+
     // Styles für den Liga-Bildschirm (Spielplan-Header)
     const style = document.createElement('style');
     style.innerHTML = `
@@ -27,7 +35,7 @@
                 const mList = activeMatches.filter(m => !m.groupId || m.groupId === g.id).sort((a, b) => a.finished - b.finished);
                 html += `
                     <div class="ad-league-section">
-                        <div class="ad-league-match-header">SPIELPLAN LIGA</div>
+                        <div class="ad-league-match-header">${t.schedule}</div>
                         <div class="ad-league-match-container">
                             ${mList.map(m => window.adMatchbox.render(m, activeMatches.indexOf(m), 'league')).join('')}
                         </div>

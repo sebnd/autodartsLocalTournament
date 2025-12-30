@@ -1,6 +1,15 @@
 (function() {
     const { MENU_ITEM_ID, PAGE_ID, QUICK_LINK_ID } = window.adTourney.constants;
 
+    // Sprachsteuerung über localStorage
+    const currentLng = localStorage.getItem('i18nextLng') || 'en';
+    const translations = {
+        'de': { online: 'Online Turniere', local: 'Lokales Turnier' },
+        'en': { online: 'Online tourn.', local: 'Local tourn.' }
+    };
+    // Fallback auf 'en', falls Sprache nicht in translations (z.B. bei 'de-DE' -> 'de' Mapping)
+    const t = translations[currentLng.startsWith('de') ? 'de' : 'en'] || translations['en'];
+
     const menuStyle = document.createElement('style');
     menuStyle.innerHTML = `
         .ad-quick-link-btn { background: #38A169 !important; color: white !important; font-weight: 800 !important; font-size: 14px !important; padding: 0 25px !important; height: 40px !important; border-radius: 8px !important; text-transform: uppercase !important; border: none !important; cursor: pointer !important; box-shadow: 0 0 0 0 rgba(56, 161, 105, 0.7); animation: ad-pulse-green 2s infinite; -webkit-font-smoothing: antialiased; backface-visibility: hidden; transform: translateZ(0); }
@@ -10,15 +19,16 @@
 
     function inject() {
         if (!window.adTourney || !window.adTourney.renderUI) return;
-        const { state, applyVisualRename, renderUI, syncMatchResults } = window.adTourney;
+        const { state, renderUI, syncMatchResults } = window.adTourney;
 
-        applyVisualRename();
+        // Der Aufruf von applyVisualRename() wurde hier entfernt, um den TypeError zu beheben.
+
         const targetBtn = document.querySelector('.navigation a[href="/tournaments"]');
         if (!targetBtn) return;
 
-        // 1. Umbenennung des originalen Buttons zu "Online Turniere"
+        // 1. Umbenennung des originalen Buttons basierend auf Sprache
         if (targetBtn.innerText === 'Turniere' || targetBtn.innerText === 'Tournaments') {
-            targetBtn.innerHTML = targetBtn.innerHTML.replace(/Turniere|Tournaments/g, 'Online Turniere');
+            targetBtn.innerHTML = targetBtn.innerHTML.replace(/Turniere|Tournaments/g, t.online);
         }
 
         // Sidebar Button Management
@@ -39,14 +49,13 @@
             const btn = targetBtn.cloneNode(true);
             btn.id = MENU_ITEM_ID; 
             btn.removeAttribute('href');
-            btn.setAttribute('aria-label', 'Lokales Turnier'); 
+            btn.setAttribute('aria-label', t.local); 
             btn.style.cursor = 'pointer';
 
             /**
-             * 2. Umbenennung des geklonten Buttons zu "Lokales Turnier"
-             * Wir ersetzen den Text des Klons (der evtl. schon "Online Turniere" vom Original geerbt hat).
+             * 2. Umbenennung des geklonten Buttons basierend auf Sprache
              */
-            btn.innerHTML = btn.innerHTML.replace(/Online Turniere|Turniere|Tournaments/g, 'Lokales Turnier');
+            btn.innerHTML = btn.innerHTML.replace(new RegExp(`${t.online}|Turniere|Tournaments`, 'g'), t.local);
 
             btn.onclick = () => {
                 const nav = document.querySelector('.navigation');
